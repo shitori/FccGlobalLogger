@@ -1,0 +1,45 @@
+{
+    "name": "fccgloballogger",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "babel-node ./src/bin/mergeinfo.js",
+        "format:write": "prettier --write ."
+    },
+    "nodemonConfig": {
+        "watch": "*.*",
+        "ext": "js,mjs"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "babel": "^6.23.0",
+        "body-parser": "^1.20.2",
+        "cookie-parser": "~1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "ejs": "^3.1.8",
+        "express": "^4.18.2",
+        "express-fileupload": "^1.4.0",
+        "gunzip-file": "^0.1.1",
+        "http-errors": "~2.0.0",
+        "morgan": "~1.10.0",
+        "zlib": "^1.0.5"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.21.0",
+        "@babel/core": "^7.21.0",
+        "@babel/node": "^7.20.7",
+        "@babel/preset-env": "^7.20.2",
+        "@babel/runtime": "^7.21.0",
+        "debug": "~4.3.4",
+        "eslint": "^8.35.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^8.7.0",
+        "eslint-plugin-import": "^2.27.5",
+        "eslint-plugin-prettier": "^4.2.1",
+        "nodemon": "^2.0.21",
+        "prettier": "^2.8.4"
+    }
+}
