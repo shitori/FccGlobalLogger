@@ -1,3 +1,5 @@
+import LogLine from './logLine'
+
 /* eslint-disable prefer-destructuring */
 const regexWithParameter =
     /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.+CALL_ID=(\d+).+}), timestamp=(\d*)}/
@@ -5,13 +7,13 @@ const regexWithParameter =
 const regexWithoutParameter =
     /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.?}), timestamp=(\d*)}/
 
-export default class JGroupLine {
+export default class JGroupLine extends LogLine {
     constructor(line) {
-        this.logLine = line
         const matchRegexWithParameter = regexWithParameter.exec(line)
         const matchRegexWithoutParameter = regexWithoutParameter.exec(line)
+
         if (matchRegexWithParameter) {
-            this.datetime = matchRegexWithParameter[1]
+            super(line, matchRegexWithParameter[1].split(',')[0])
             this.uuid = matchRegexWithParameter[2]
             this.eventId = matchRegexWithParameter[3]
             this.action = matchRegexWithParameter[4]
@@ -23,7 +25,7 @@ export default class JGroupLine {
             this.callId = matchRegexWithParameter[10]
             this.timestamp = matchRegexWithParameter[11]
         } else if (matchRegexWithoutParameter) {
-            this.datetime = matchRegexWithoutParameter[1]
+            super(line, matchRegexWithoutParameter[1].split(',')[0])
             this.uuid = matchRegexWithoutParameter[2]
             this.eventId = matchRegexWithoutParameter[3]
             this.action = matchRegexWithoutParameter[4]
@@ -35,7 +37,7 @@ export default class JGroupLine {
             this.callId = ''
             this.timestamp = matchRegexWithoutParameter[10]
         } else {
-            this.datetime = ''
+            super(line, '')
             this.uuid = ''
             this.eventId = ''
             this.action = ''

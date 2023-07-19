@@ -28,8 +28,7 @@ export default class HaProxyLine extends LogLine {
         backEndQueueSize,
         requestHTTP
     ) {
-        super(line)
-        this.dateTime = dateTime
+        super(line, dateTime)
         this.haProxyHostIp = haProxyHostIp
         this.haProxyProcessId = haProxyProcessId
         this.sourceIp = sourceIp

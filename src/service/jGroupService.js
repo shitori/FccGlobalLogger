@@ -24,13 +24,13 @@ export default class JGroupService extends DefaultLogger {
 
     findCallIdByOriginalCallID(callIdOrigine) {
         let callId
-        // console.info(this.contentWrap)
         const subContent = this.contentWrap.filter((lineW) =>
             lineW.parameters.includes(callIdOrigine)
         )
         subContent.forEach((lineW) => {
             callId = lineW.callId
         })
+        console.info(callId)
         return callId
     }
 
