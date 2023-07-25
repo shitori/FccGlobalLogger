@@ -1,5 +1,4 @@
 /* eslint-disable prefer-destructuring */
-import ApiMedService from '../service/apiMedService'
 import ApiService from '../service/apiService'
 import AuditService from '../service/auditService'
 import HaProxyIntService from '../service/haProxyIntService'

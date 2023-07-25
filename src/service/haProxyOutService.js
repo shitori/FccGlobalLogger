@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import HaProxyOutLine from '../model/haproxyOutLine'
 import DefaultLogger from './defaultLogger'
 
@@ -69,7 +70,6 @@ export default class HaProxyOutService extends DefaultLogger {
 
     async getAllLogFromDateTime(sessionToken, dateStart, dateEnd) {
         let subContent = await this.getSubContent(sessionToken)
-        console.log(subContent)
 
         subContent = subContent.filter(
             (lineW) => dateStart <= lineW.dateTime && lineW.dateTime <= dateEnd

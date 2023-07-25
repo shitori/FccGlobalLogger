@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import HaProxyIntLine from '../model/haproxyIntLine'
 import DefaultLogger from './defaultLogger'
 

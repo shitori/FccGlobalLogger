@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import AuditLine from '../model/auditLine'
 import DefaultLogger from './defaultLogger'
 

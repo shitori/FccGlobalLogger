@@ -4,10 +4,9 @@ import { readFile, unzipAndDistributeLines } from '../helper/fileHelper'
 export default class DefaultLogger {
     constructor(logName) {
         this.logName = logName
-        // this.content = this.readFile(logName)
         this.logFullPath = path.join(__dirname, '..', '..', 'upload', logName)
         this.tmpFiles = []
-        this.alreadyInit = true
+
         for (let index = 0; index < 100; index += 1) {
             this.tmpFiles.push(
                 path.join(
@@ -19,6 +18,8 @@ export default class DefaultLogger {
                 )
             )
         }
+
+        this.alreadyInit = false // ? change at true for test faster
     }
 
     init() {

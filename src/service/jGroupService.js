@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import JGroupLine from '../model/jGroupLine'
 import DefaultLogger from './defaultLogger'
 

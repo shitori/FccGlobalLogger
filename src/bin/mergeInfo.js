@@ -1,4 +1,4 @@
-import { distributeLines, writeFile } from '../helper/fileHelper'
+import { writeFile } from '../helper/fileHelper'
 import CallLogInfo from '../model/callLogInfo'
 import AuditService from '../service/auditService'
 import HaProxyIntService from '../service/haProxyIntService'
