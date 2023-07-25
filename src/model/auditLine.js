@@ -7,7 +7,7 @@ export default class AuditLine extends LogLine {
     constructor(line) {
         const match = regex.exec(line)
         if (match) {
-            super(line, match[1])
+            super(line, match[1].split(',')[0])
             this.agentLogin = match[2]
             this.sessionId = match[3]
             this.logLevel = match[4]

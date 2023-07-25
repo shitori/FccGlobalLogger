@@ -2,7 +2,7 @@
 import HaProxyLine from './haproxyLine'
 
 const regex =
-    /(.+) (.+) (.+): (.+):(.+) \[(.+)\] (.+) (.+) (\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+) (\d+) (\d+) sessiontoken=(.+) - --(.+) (\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+) (\d+)\/(\d+) {(.+)\|(.?)} "(.+)"/
+    /(.+) (.+) (.+): (.+):(.+) \[(.+)\] (.+) (.+) (\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+) (\d+) (\d+) sessiontoken=(.+) - --(.+) (\d+)\/(\d+)\/(\d+)\/(\d+)\/(\d+) (\d+)\/(\d+) {(.+)\|(.*)} "(.+)"/
 
 export default class HaProxyOutLine extends HaProxyLine {
     constructor(line) {

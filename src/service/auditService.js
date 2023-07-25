@@ -2,22 +2,24 @@ import AuditLine from '../model/auditLine'
 import DefaultLogger from './defaultLogger'
 
 export default class AuditService extends DefaultLogger {
-    constructor(logName) {
-        super(logName)
-        this.contentWrap = this.wrapContent()
-    }
-
-    wrapContent() {
-        const wraped = []
-        this.content.forEach((line) => {
-            wraped.push(new AuditLine(line))
+    wrapContent(content) {
+        const contentWrap = []
+        content.forEach((line) => {
+            contentWrap.push(new AuditLine(line))
         })
-        return wraped
+        return contentWrap
     }
 
-    getAllJsErrorFromAgent(agentLogin) {
-        const subContent = this.contentWrap.filter(
-            (lineW) => lineW.agentLogin === agentLogin
+    async getAllJsErrorFromAgent(agentLogin) {
+        const subContent = await this.getSubContent(agentLogin)
+        return subContent
+    }
+
+    async getAllJsErrorFromAgentAndDateTime(agentLogin, dateStart, dateEnd) {
+        let subContent = await this.getSubContent(agentLogin)
+
+        subContent = subContent.filter(
+            (lineW) => dateStart <= lineW.dateTime && lineW.dateTime <= dateEnd
         )
         return subContent
     }

@@ -2,10 +2,10 @@ import LogLine from './logLine'
 
 /* eslint-disable prefer-destructuring */
 const regexWithParameter =
-    /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.+CALL_ID=(\d+).+}), timestamp=(\d*)}/
+    /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.*CALL_ID=(\d+).+}), timestamp=(\d*)}/
 
 const regexWithoutParameter =
-    /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.?}), timestamp=(\d*)}/
+    /(.+) \| CosmocomEvent{uuid='(.+)', eventId=(\d*), action='(.+)', messageType='(.+)', agentLogin='(.+)', tenantId='(\d*)', site='(.+)', parameters=({.*}), timestamp=(\d*)}/
 
 export default class JGroupLine extends LogLine {
     constructor(line) {

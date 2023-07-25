@@ -2,59 +2,77 @@ import HaProxyOutLine from '../model/haproxyOutLine'
 import DefaultLogger from './defaultLogger'
 
 export default class HaProxyOutService extends DefaultLogger {
-    constructor(logName) {
-        super(logName)
-        this.contentWrap = this.wrapContent()
-    }
-
-    wrapContent() {
-        const wraped = []
-        this.content.forEach((line) => {
-            wraped.push(new HaProxyOutLine(line))
+    wrapContent(content) {
+        const contentWrap = []
+        content.forEach((line) => {
+            contentWrap.push(new HaProxyOutLine(line))
         })
-        return wraped
+        return contentWrap
     }
 
-    getApiMedLogFromSessionTokenAndDateTime(sessionToken, dateStart, dateEnd) {
-        return this.getApiTargetLogFromSessionTokenAndDateTime(
-            sessionToken,
-            dateStart,
-            dateEnd,
-            'MED'
-        )
-    }
-
-    getApiStatLogFromSessionTokenAndDateTime(sessionToken, dateStart, dateEnd) {
-        return this.getApiTargetLogFromSessionTokenAndDateTime(
-            sessionToken,
-            dateStart,
-            dateEnd,
-            'STAT'
-        )
-    }
-
-    getApiTargetLogFromSessionTokenAndDateTime(
+    getApiMedLogFromSessionTokenAndDateTime(
         sessionToken,
         dateStart,
         dateEnd,
-        target
+        content = undefined
     ) {
-        const subContent = this.contentWrap.filter(
-            (lineW) =>
-                lineW.sessionToken === sessionToken &&
-                dateStart <= lineW.dateTime &&
-                lineW.dateTime <= dateEnd &&
-                lineW.requestTarget.includes(target)
+        const subContent = this.getApiTargetLogFromSessionTokenAndDateTime(
+            sessionToken,
+            dateStart,
+            dateEnd,
+            'MED',
+            content
         )
         return subContent
     }
 
-    getAllLogFromDateTime(sessionToken, dateStart, dateEnd) {
-        const subContent = this.contentWrap.filter(
-            (lineW) =>
-                lineW.sessionToken === sessionToken &&
-                dateStart <= lineW.dateTime &&
-                lineW.dateTime <= dateEnd
+    async getApiStatLogFromSessionTokenAndDateTime(
+        sessionToken,
+        dateStart,
+        dateEnd,
+        content = undefined
+    ) {
+        const subContent =
+            await this.getApiTargetLogFromSessionTokenAndDateTime(
+                sessionToken,
+                dateStart,
+                dateEnd,
+                'STAT',
+                content
+            )
+        return subContent
+    }
+
+    async getApiTargetLogFromSessionTokenAndDateTime(
+        sessionToken,
+        dateStart,
+        dateEnd,
+        target,
+        content = undefined
+    ) {
+        let subContent = []
+        if (content === undefined) {
+            subContent = await this.getAllLogFromDateTime(
+                sessionToken,
+                dateStart,
+                dateEnd
+            )
+        } else {
+            subContent = content
+        }
+
+        subContent = subContent.filter((lineW) =>
+            lineW.requestTarget.includes(target)
+        )
+        return subContent
+    }
+
+    async getAllLogFromDateTime(sessionToken, dateStart, dateEnd) {
+        let subContent = await this.getSubContent(sessionToken)
+        console.log(subContent)
+
+        subContent = subContent.filter(
+            (lineW) => dateStart <= lineW.dateTime && lineW.dateTime <= dateEnd
         )
         return subContent
     }

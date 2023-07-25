@@ -2,50 +2,49 @@ import HaProxyIntLine from '../model/haproxyIntLine'
 import DefaultLogger from './defaultLogger'
 
 export default class HaProxyIntService extends DefaultLogger {
-    constructor(logName) {
-        super(logName)
-        this.contentWrap = this.wrapContent()
-    }
-
-    wrapContent() {
-        const wraped = []
-        this.content.forEach((line) => {
-            wraped.push(new HaProxyIntLine(line))
+    wrapContent(content) {
+        const contentWrap = []
+        content.forEach((line) => {
+            contentWrap.push(new HaProxyIntLine(line))
         })
-        return wraped
+        return contentWrap
     }
 
-    getAllSessionTokenFromAgent(agentLogin) {
-        const subContent = this.contentWrap.filter(
-            (lineW) => lineW.agentLogin === agentLogin
-        )
-        // console.info(subContent)
+    async getAllSessionTokenFromAgent(agentLogin) {
+        const subContent = await this.getSubContent(agentLogin)
         let sessionTokens = subContent.map((lineW) => lineW.sessionToken)
+
         sessionTokens = [...new Set(sessionTokens)]
         return sessionTokens
     }
 
-    getSessionTokenFromAgentAndDateTime(agentLogin, dateStart, dateEnd) {
-        const subContent = this.contentWrap.filter(
-            (lineW) =>
-                lineW.agentLogin === agentLogin &&
-                dateStart <= lineW.dateTime &&
-                lineW.dateTime <= dateEnd
-        )
+    async getSessionTokenFromAgentAndDateTime(
+        agentLogin,
+        dateStart,
+        dateEnd,
+        content = undefined
+    ) {
+        let subContent = []
+        if (content === undefined) {
+            subContent = await this.getAllLogFromDateTime(
+                agentLogin,
+                dateStart,
+                dateEnd
+            )
+        } else {
+            subContent = content
+        }
 
         let sessionTokens = subContent.map((lineW) => lineW.sessionToken)
-        //console.info(sessionTokens)
         sessionTokens = [...new Set(sessionTokens)]
         console.info(sessionTokens[0])
         return sessionTokens[0]
     }
 
-    getAllLogFromDateTime(agentLogin, dateStart, dateEnd) {
-        const subContent = this.contentWrap.filter(
-            (lineW) =>
-                lineW.agentLogin === agentLogin &&
-                dateStart <= lineW.dateTime &&
-                lineW.dateTime <= dateEnd
+    async getAllLogFromDateTime(agentLogin, dateStart, dateEnd) {
+        let subContent = await this.getSubContent(agentLogin)
+        subContent = subContent.filter(
+            (lineW) => dateStart <= lineW.dateTime && lineW.dateTime <= dateEnd
         )
         return subContent
     }
