@@ -8,21 +8,28 @@ import JGroupService from '../service/jGroupService'
 
 export default class CallLogInfo {
     constructor(
-        originalCallID,
-        jgroupLog,
-        auditLog,
-        haproxyIntLog,
-        haproxyOutLog,
-        apiMedLog,
-        apiStatLog
+        originalCallID = '',
+        jgroupLog = '',
+        auditLog = '',
+        haproxyIntLog = '',
+        haproxyOutLog = '',
+        apiMedLog = '',
+        apiStatLog = ''
     ) {
         this.originalCallID = originalCallID
         this.jgroupLogFile = new JGroupService(jgroupLog)
         this.auditLogFile = new AuditService(auditLog)
         this.haproxyIntLogFile = new HaProxyIntService(haproxyIntLog)
         this.haproxyOutLogFile = new HaProxyOutService(haproxyOutLog)
-        this.apiMedFile = new ApiService(apiMedLog)
-        this.apiStatFile = new ApiService(apiStatLog)
+        if (apiMedLog === '' || apiStatLog === '') {
+            this.fullProcess = false
+            this.apiMedFile = undefined
+            this.apiStatFile = undefined
+        } else {
+            this.fullProcess = true
+            this.apiMedFile = new ApiService(apiMedLog)
+            this.apiStatFile = new ApiService(apiStatLog)
+        }
     }
 
     async init() {
@@ -118,25 +125,27 @@ export default class CallLogInfo {
             .split('/')[1]
             .split('-')[2]
 
-        console.info(
-            `HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : `
-        )
+        if (this.fullProcess) {
+            console.info(
+                `HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : `
+            )
 
-        this.apiMedLog = this.apiMedFile.getApiLogFromAgentAndDateTime(
-            this.agentLogin,
-            this.dateStart,
-            this.dateEnd
-        )
+            this.apiMedLog = this.apiMedFile.getApiLogFromAgentAndDateTime(
+                this.agentLogin,
+                this.dateStart,
+                this.dateEnd
+            )
 
-        console.info(
-            `HaProxy LblOut ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : `
-        )
+            console.info(
+                `HaProxy LblOut ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : `
+            )
 
-        this.apiStatLog = this.apiStatFile.getApiLogFromAgentAndDateTime(
-            this.agentLogin,
-            this.dateStart,
-            this.dateEnd
-        )
+            this.apiStatLog = this.apiStatFile.getApiLogFromAgentAndDateTime(
+                this.agentLogin,
+                this.dateStart,
+                this.dateEnd
+            )
+        }
     }
 
     toString() {
@@ -161,15 +170,21 @@ export default class CallLogInfo {
             str += `${log.LogLine}\n`
         })
 
-        str += `\n HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : \n`
-        this.apiMedLog.forEach((log) => {
-            str += `${log.LogLine}\n`
-        })
+        if (this.fullProcess) {
+            str += `\n ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : \n`
+            this.apiMedLog.forEach((log) => {
+                str += `${log.LogLine}\n`
+            })
 
-        str += `\n HaProxy LblOut ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : \n`
-        this.apiStatLog.forEach((log) => {
-            str += `${log.LogLine}\n`
-        })
+            str += `\n ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : \n`
+            this.apiStatLog.forEach((log) => {
+                str += `${log.LogLine}\n`
+            })
+        } else {
+            str += `\n ApiMed Log locate in server ${this.apiMedServer} for version ${this.apiMedVersion} \n`
+
+            str += `\n ApiStat Log locate in server ${this.apiStatServer} for version ${this.apiStatVersion} : \n`
+        }
 
         return str
     }
