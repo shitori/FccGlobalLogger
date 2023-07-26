@@ -1,4 +1,3 @@
-import { writeFile } from '../helper/fileHelper'
 import CallLogInfo from '../model/callLogInfo'
 import AuditService from '../service/auditService'
 import HaProxyIntService from '../service/haProxyIntService'
@@ -15,13 +14,14 @@ async function main() {
         'api-mediation-3.29.3.log.2023-06-26.gz',
         'api-stats-3.13.0.log.2023-06-26.gz'
     )
+
     await call.init()
 
-    await writeFile(`call-${call.originalCallID}.txt`, call.toString())
+    /*await writeFile(`call-${call.originalCallID}.txt`, call.toString())
     await writeFile(
         `call-${call.originalCallID}.json`,
         JSON.stringify(call, null, 2)
-    )
+    )*/
 }
 
 async function main2() {
@@ -68,6 +68,25 @@ async function main5() {
 
     const info = await logFile.getAllLogFromDateTime(sessionToken, ds, df)
     console.info(info)
+}
+
+async function main6() {
+    const call = new CallLogInfo(
+        '2e978f1d25580360',
+        'jgroups.log.2023-06-26.gz',
+        'audit.log.2023-06-26.gz',
+        'haproxy_debug.log-20230627lblint.gz',
+        'haproxy_debug.log-20230627lblout.gz',
+        'api-mediation-3.29.3.log.2023-06-26.gz',
+        'api-stats-3.13.0.log.2023-06-26.gz'
+    )
+
+    await call.searchInDatabase()
+    /*await writeFile(`call-${call.originalCallID}.txt`, call.toString())
+    await writeFile(
+        `call-${call.originalCallID}.json`,
+        JSON.stringify(call, null, 2)
+    )*/
 }
 
 main()

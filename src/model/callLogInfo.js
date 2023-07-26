@@ -1,11 +1,19 @@
 /* eslint-disable prefer-destructuring */
+import path from 'path'
+import { readFileSync } from 'fs'
 import ApiService from '../service/apiService'
 import AuditService from '../service/auditService'
 import HaProxyIntService from '../service/haProxyIntService'
 import HaProxyOutService from '../service/haProxyOutService'
 import JGroupService from '../service/jGroupService'
+import AuditLine from './auditLine'
+import JGroupLine from './jGroupLine'
+import HaProxyIntLine from './haproxyIntLine'
+import HaProxyOutLine from './haproxyOutLine'
+import ApiLine from './apiLine'
+import DefaultObject from './defaultObject'
 
-export default class CallLogInfo {
+export default class CallLogInfo extends DefaultObject {
     constructor(
         originalCallID = '',
         jgroupLog = '',
@@ -15,6 +23,7 @@ export default class CallLogInfo {
         apiMedLog = '',
         apiStatLog = ''
     ) {
+        super('call', originalCallID)
         this.originalCallID = originalCallID
         this.jgroupLogFile = new JGroupService(jgroupLog)
         this.auditLogFile = new AuditService(auditLog)
@@ -29,9 +38,20 @@ export default class CallLogInfo {
             this.apiMedFile = new ApiService(apiMedLog)
             this.apiStatFile = new ApiService(apiStatLog)
         }
+
+        this.alreadyInit = false
+        this.alreadyFullInit = false
+
+        this.searchInDatabase()
     }
 
     async init() {
+        console.info(this.alreadyInit)
+        if (this.alreadyInit) {
+            console.info('Already initialized')
+            return
+        }
+        console.info('Start init')
         this.callID = await this.jgroupLogFile.findCallIdByOriginalCallID(
             this.originalCallID
         )
@@ -124,7 +144,10 @@ export default class CallLogInfo {
             .split('/')[1]
             .split('-')[2]
 
-        if (this.fullProcess) {
+        this.alreadyInit = true
+
+        if (this.fullProcess && !this.alreadyFullInit) {
+            this.alreadyFullInit = true
             console.info(
                 `HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : `
             )
@@ -145,6 +168,8 @@ export default class CallLogInfo {
                 this.dateEnd
             )
         }
+
+        this.saveInDatabase()
     }
 
     toString() {
@@ -186,5 +211,85 @@ export default class CallLogInfo {
         }
 
         return str
+    }
+
+    searchInDatabase() {
+        const pathCall = path.join(
+            __dirname,
+            '..',
+            '..',
+            'database',
+            `call-${this.originalCallID}.json`
+        )
+        let content = ''
+        try {
+            content = readFileSync(pathCall)
+            console.info('Call found in database')
+        } catch (error) {
+            console.info('Call not found in database')
+            return
+        }
+
+        const jsonContent = JSON.parse(content)
+
+        this.alreadyInit = jsonContent.alreadyInit
+        this.alreadyFullInit = jsonContent.alreadyFullInit
+
+        this.callID = jsonContent.callID
+        this.agentLogin = jsonContent.agentLogin
+        this.sessionToken = jsonContent.sessionToken
+
+        this.jgroupLog = []
+        jsonContent.jgroupLog.forEach((line) => {
+            this.jgroupLog.push(new JGroupLine(line.LogLine))
+        })
+
+        this.auditLog = []
+        jsonContent.auditLog.forEach((line) => {
+            this.auditLog.push(new AuditLine(line.LogLine))
+        })
+
+        this.haproxyIntLog = []
+        jsonContent.haproxyIntLog.forEach((line) => {
+            this.haproxyIntLog.push(new HaProxyIntLine(line.LogLine))
+        })
+
+        this.haproxyOutLog = []
+        jsonContent.haproxyOutLog.forEach((line) => {
+            this.haproxyOutLog.push(new HaProxyOutLine(line.LogLine))
+        })
+
+        this.haproxyOutLogMed = []
+        jsonContent.haproxyOutLogMed.forEach((line) => {
+            this.haproxyOutLogMed.push(new HaProxyOutLine(line.LogLine))
+        })
+
+        this.haproxyOutLogStat = []
+        jsonContent.haproxyOutLogStat.forEach((line) => {
+            this.haproxyOutLogStat.push(new HaProxyOutLine(line.LogLine))
+        })
+
+        this.fullProcess = jsonContent.fullProcess
+
+        this.apiMedServer = jsonContent.apiMedServer
+        this.apiMedVersion = jsonContent.apiMedVersion
+
+        this.apiStatServer = jsonContent.apiStatServer
+        this.apiStatVersion = jsonContent.apiStatVersion
+
+        this.apiStatLog = []
+        this.apiMedLog = []
+
+        if (this.fullProcess) {
+            jsonContent.apiMedLog.forEach((line) => {
+                this.apiMedLog.push(new ApiLine(line.LogLine))
+            })
+
+            jsonContent.apiStatLog.forEach((line) => {
+                this.apiStatLog.push(new ApiLine(line.LogLine))
+            })
+        }
+
+        console.info('Load from database success')
     }
 }

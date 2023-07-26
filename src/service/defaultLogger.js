@@ -1,13 +1,21 @@
 import path from 'path'
-import { readFile, unzipAndDistributeLines } from '../helper/fileHelper'
+import {
+    readFile,
+    unzipAndDistributeLines,
+    unzipAndDistributeLinesV2,
+} from '../helper/fileHelper'
+import DefaultObject from '../model/defaultObject'
 
-export default class DefaultLogger {
+const MAX_TMP_FILES = 50
+
+export default class DefaultLogger extends DefaultObject {
     constructor(logName) {
+        super('log', `[${logName}]`)
         this.logName = logName
         this.logFullPath = path.join(__dirname, '..', '..', 'upload', logName)
         this.tmpFiles = []
 
-        for (let index = 0; index < 100; index += 1) {
+        for (let index = 0; index < MAX_TMP_FILES; index += 1) {
             this.tmpFiles.push(
                 path.join(
                     __dirname,
@@ -28,13 +36,16 @@ export default class DefaultLogger {
                 unzipAndDistributeLines(this.logFullPath, this.tmpFiles)
                     .then(() => {
                         this.alreadyInit = true
+                        this.saveInDatabase()
                         resolve('File init OK')
                     })
                     .catch((err) => {
                         this.alreadyInit = false
+                        this.saveInDatabase()
                         reject(new Error('File init KO', err))
                     })
             } else {
+                this.saveInDatabase()
                 resolve('File already init')
             }
         })

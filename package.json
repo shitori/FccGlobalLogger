@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "babel-node --max-old-space-size=8192 ./src/bin/mergeinfo.js",
+        "test": "babel-node --max-old-space-size=8192 --trace-warnings ./src/bin/mergeinfo.js",
         "format:write": "prettier --write ."
     },
     "nodemonConfig": {

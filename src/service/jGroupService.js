@@ -27,7 +27,6 @@ export default class JGroupService extends DefaultLogger {
         subContent.forEach((lineW) => {
             agentLogin = lineW.agentLogin
         })
-        console.info(agentLogin)
         return agentLogin
     }
 
