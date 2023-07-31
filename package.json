@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "babel-node --max-old-space-size=8192 --trace-warnings ./src/bin/mergeinfo.js",
+        "jenkins:full": "babel-node --max-old-space-size=8192 --trace-warnings ./src/bin/jenkinsFull.js",
         "format:write": "prettier --write ."
     },
     "nodemonConfig": {

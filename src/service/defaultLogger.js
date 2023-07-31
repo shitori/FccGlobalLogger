@@ -71,7 +71,6 @@ export default class DefaultLogger extends DefaultObject {
     async getSubContent(filter) {
         const lines = await zgrep(this.logFullPath, filter)
         return this.wrapContent(lines)
-
     }
 
     searchInDatabase() {
@@ -98,6 +97,4 @@ export default class DefaultLogger extends DefaultObject {
         this.alreadyInit = jsonContent.alreadyInit
         console.info('Load from database success')
     }
-
-
 }

@@ -84,8 +84,6 @@ async function main6() {
 
     const info = await logFile.getApiLogFromAgentAndDateTime(agentLogin, ds, df)
     console.info(info)
-
-
 }
 
 async function main7() {
@@ -97,7 +95,6 @@ async function main7() {
 
     const info = await logFile.getApiLogFromAgentAndDateTime(agentLogin, ds, df)
     console.info(info)
-
 }
 
 main()
