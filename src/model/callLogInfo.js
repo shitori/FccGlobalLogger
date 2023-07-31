@@ -29,28 +29,14 @@ export default class CallLogInfo extends DefaultObject {
         this.auditLogFile = new AuditService(auditLog)
         this.haproxyIntLogFile = new HaProxyIntService(haproxyIntLog)
         this.haproxyOutLogFile = new HaProxyOutService(haproxyOutLog)
-        if (apiMedLog === '' || apiStatLog === '') {
-            this.fullProcess = false
-            this.apiMedFile = undefined
-            this.apiStatFile = undefined
-        } else {
-            this.fullProcess = true
-            this.apiMedFile = new ApiService(apiMedLog)
-            this.apiStatFile = new ApiService(apiStatLog)
-        }
+        this.fullProcess = true
+        this.apiMedFile = new ApiService(apiMedLog)
+        this.apiStatFile = new ApiService(apiStatLog)
 
-        this.alreadyInit = false
-        this.alreadyFullInit = false
-
-        this.searchInDatabase()
+        this.saveInDatabase()
     }
 
     async init() {
-        console.info(this.alreadyInit)
-        if (this.alreadyInit) {
-            console.info('Already initialized')
-            return
-        }
         console.info('Start init')
         this.callID = await this.jgroupLogFile.findCallIdByOriginalCallID(
             this.originalCallID
@@ -144,30 +130,25 @@ export default class CallLogInfo extends DefaultObject {
             .split('/')[1]
             .split('-')[2]
 
-        this.alreadyInit = true
+        console.info(
+            `HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : `
+        )
 
-        if (this.fullProcess && !this.alreadyFullInit) {
-            this.alreadyFullInit = true
-            console.info(
-                `HaProxy LblOut ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : `
-            )
+        this.apiMedLog = await this.apiMedFile.getApiLogFromAgentAndDateTime(
+            this.agentLogin,
+            this.dateStart,
+            this.dateEnd
+        )
 
-            this.apiMedLog = this.apiMedFile.getApiLogFromAgentAndDateTime(
-                this.agentLogin,
-                this.dateStart,
-                this.dateEnd
-            )
+        console.info(
+            `HaProxy LblOut ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : `
+        )
 
-            console.info(
-                `HaProxy LblOut ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : `
-            )
-
-            this.apiStatLog = this.apiStatFile.getApiLogFromAgentAndDateTime(
-                this.agentLogin,
-                this.dateStart,
-                this.dateEnd
-            )
-        }
+        this.apiStatLog = await this.apiStatFile.getApiLogFromAgentAndDateTime(
+            this.agentLogin,
+            this.dateStart,
+            this.dateEnd
+        )
 
         this.saveInDatabase()
     }
@@ -194,21 +175,15 @@ export default class CallLogInfo extends DefaultObject {
             str += `${log.LogLine}\n`
         })
 
-        if (this.fullProcess) {
-            str += `\n ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : \n`
-            this.apiMedLog.forEach((log) => {
-                str += `${log.LogLine}\n`
-            })
+        str += `\n ApiMed Log from server ${this.apiMedServer} and version ${this.apiMedVersion} : \n`
+        this.apiMedLog.forEach((log) => {
+            str += `${log.LogLine}\n`
+        })
 
-            str += `\n ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : \n`
-            this.apiStatLog.forEach((log) => {
-                str += `${log.LogLine}\n`
-            })
-        } else {
-            str += `\n ApiMed Log locate in server ${this.apiMedServer} for version ${this.apiMedVersion} \n`
-
-            str += `\n ApiStat Log locate in server ${this.apiStatServer} for version ${this.apiStatVersion} : \n`
-        }
+        str += `\n ApiStat Log from server ${this.apiStatServer} and version ${this.apiStatVersion} : \n`
+        this.apiStatLog.forEach((log) => {
+            str += `${log.LogLine}\n`
+        })
 
         return str
     }

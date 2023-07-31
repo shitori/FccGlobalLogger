@@ -1,14 +1,10 @@
-import { readFile, unzipAndReturnLinesFile } from '../helper/fileHelper'
+/* eslint-disable class-methods-use-this */
+import { unzipAndReturnLinesFile } from '../helper/fileHelper'
 import ApiLine from '../model/apiLine'
 import DefaultLogger from './defaultLogger'
 
 export default class ApiService extends DefaultLogger {
-    constructor(logName) {
-        super(logName)
-        this.contentWrap = this.wrapContent()
-    }
-
-    wrapContent() {
+    wrapContentV0() {
         const wraped = []
         const content = unzipAndReturnLinesFile(this.logFullPath)
         console.info(content)
@@ -28,17 +24,21 @@ export default class ApiService extends DefaultLogger {
         return wrapedConcatError
     }
 
-    getApiLogFromAgent(agentLogin) {
-        const subContent = this.contentWrap.filter(
-            (lineW) =>
-                lineW.message.includes(agentLogin) ||
-                lineW.agentLogin.includes(agentLogin)
-        )
+    wrapContent(content) {
+        const contentWrap = []
+        content.forEach((line) => {
+            contentWrap.push(new ApiLine(line))
+        })
+        return contentWrap
+    }
+
+    async getApiLogFromAgent(agentLogin) {
+        const subContent = await this.getSubContent(agentLogin)
         return subContent
     }
 
-    getApiLogFromAgentAndDateTime(agentLogin, dateStart, dateEnd) {
-        let subContent = this.getApiLogFromAgent(agentLogin)
+    async getApiLogFromAgentAndDateTime(agentLogin, dateStart, dateEnd) {
+        let subContent = await this.getApiLogFromAgent(agentLogin)
         console.info(subContent)
         subContent = subContent.filter(
             (lineW) => dateStart <= lineW.dateTime && lineW.dateTime <= dateEnd

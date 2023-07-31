@@ -1,9 +1,6 @@
 import path from 'path'
-import {
-    readFile,
-    unzipAndDistributeLines,
-    unzipAndDistributeLinesV2,
-} from '../helper/fileHelper'
+import { readFileSync } from 'fs'
+import { readFile, unzipAndDistributeLines, zgrep } from '../helper/fileHelper'
 import DefaultObject from '../model/defaultObject'
 
 const MAX_TMP_FILES = 50
@@ -13,7 +10,7 @@ export default class DefaultLogger extends DefaultObject {
         super('log', `[${logName}]`)
         this.logName = logName
         this.logFullPath = path.join(__dirname, '..', '..', 'upload', logName)
-        this.tmpFiles = []
+        /*this.tmpFiles = []
 
         for (let index = 0; index < MAX_TMP_FILES; index += 1) {
             this.tmpFiles.push(
@@ -25,9 +22,11 @@ export default class DefaultLogger extends DefaultObject {
                     `${logName}-0${index}.txt`
                 )
             )
-        }
+        }*/
 
         this.alreadyInit = false // ? change at true for test faster
+
+        //this.searchInDatabase()
     }
 
     init() {
@@ -45,13 +44,12 @@ export default class DefaultLogger extends DefaultObject {
                         reject(new Error('File init KO', err))
                     })
             } else {
-                this.saveInDatabase()
                 resolve('File already init')
             }
         })
     }
 
-    getSubContent(filter) {
+    getSubContentV0(filter) {
         return new Promise((resolve) => {
             this.init().then(() => {
                 let res = []
@@ -69,4 +67,37 @@ export default class DefaultLogger extends DefaultObject {
             })
         })
     }
+
+    async getSubContent(filter) {
+        const lines = await zgrep(this.logFullPath, filter)
+        return this.wrapContent(lines)
+
+    }
+
+    searchInDatabase() {
+        const pathLog = path.join(
+            __dirname,
+            '..',
+            '..',
+            'database',
+            `log-[${this.logName}].json`
+        )
+
+        let content = ''
+
+        try {
+            content = readFileSync(pathLog)
+            console.info('Call found in database')
+        } catch (error) {
+            console.info('Call not found in database')
+            return
+        }
+
+        const jsonContent = JSON.parse(content)
+
+        this.alreadyInit = jsonContent.alreadyInit
+        console.info('Load from database success')
+    }
+
+
 }

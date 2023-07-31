@@ -1,4 +1,6 @@
+import { writeFile } from '../helper/fileHelper'
 import CallLogInfo from '../model/callLogInfo'
+import ApiService from '../service/apiService'
 import AuditService from '../service/auditService'
 import HaProxyIntService from '../service/haProxyIntService'
 import HaProxyOutService from '../service/haProxyOutService'
@@ -17,11 +19,13 @@ async function main() {
 
     await call.init()
 
-    /*await writeFile(`call-${call.originalCallID}.txt`, call.toString())
+    console.info(call.toString())
+
+    /* await writeFile(`call-${call.originalCallID}.txt`, call.toString())
     await writeFile(
         `call-${call.originalCallID}.json`,
         JSON.stringify(call, null, 2)
-    )*/
+    ) */
 }
 
 async function main2() {
@@ -67,26 +71,33 @@ async function main5() {
     const sessionToken = 'cf4f38382fba9ca5d4f067e3619a5175507f65a7600ceae480'
 
     const info = await logFile.getAllLogFromDateTime(sessionToken, ds, df)
-    console.info(info)
+    await writeFile(`main5.json`, JSON.stringify(info, null, 2))
+    console.info('main5 saved and finished')
 }
 
 async function main6() {
-    const call = new CallLogInfo(
-        '2e978f1d25580360',
-        'jgroups.log.2023-06-26.gz',
-        'audit.log.2023-06-26.gz',
-        'haproxy_debug.log-20230627lblint.gz',
-        'haproxy_debug.log-20230627lblout.gz',
-        'api-mediation-3.29.3.log.2023-06-26.gz',
-        'api-stats-3.13.0.log.2023-06-26.gz'
-    )
+    const logFile = new ApiService('api-mediation-3.29.3.log.2023-06-26.gz')
 
-    await call.searchInDatabase()
-    /*await writeFile(`call-${call.originalCallID}.txt`, call.toString())
-    await writeFile(
-        `call-${call.originalCallID}.json`,
-        JSON.stringify(call, null, 2)
-    )*/
+    const ds = new Date('Mon Jun 26 2023 10:33:36 GMT+0100 (UTC+01:00)')
+    const df = new Date('Mon Jun 26 2023 10:39:04 GMT+0100 (UTC+01:00)')
+    const agentLogin = 'scatak.miele'
+
+    const info = await logFile.getApiLogFromAgentAndDateTime(agentLogin, ds, df)
+    console.info(info)
+
+
+}
+
+async function main7() {
+    const logFile = new ApiService('api-stats-3.13.0.log.2023-06-26.gz')
+
+    const ds = new Date('Mon Jun 26 2023 10:33:36 GMT+0100 (UTC+01:00)')
+    const df = new Date('Mon Jun 26 2023 10:39:04 GMT+0100 (UTC+01:00)')
+    const agentLogin = 'scatak.miele'
+
+    const info = await logFile.getApiLogFromAgentAndDateTime(agentLogin, ds, df)
+    console.info(info)
+
 }
 
 main()

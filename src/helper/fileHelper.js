@@ -213,3 +213,22 @@ if (!isMainThread) {
 
     parentPort.postMessage({ content, index })
 }
+
+export async function zgrep(filePath, searchTerm) {
+    const gunzip = zlib.createGunzip()
+    const readStream = fs.createReadStream(filePath).pipe(gunzip)
+    const rl = readline.createInterface({
+        input: readStream,
+        crlfDelay: Infinity,
+    })
+
+    const matchedLines = []
+
+    for await (const line of rl) {
+        if (line.includes(searchTerm)) {
+            matchedLines.push(line)
+        }
+    }
+
+    return matchedLines
+}
